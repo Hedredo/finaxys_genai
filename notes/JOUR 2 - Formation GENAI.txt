@@ -1,0 +1,90 @@
+JOUR 2 - Formation GENAI
+
+penser à mettre dans son activate les var d'environnement tel que clé OPENAI ou LANGCHAIN
+
+Demander à Pierre si on peut partager et aller aussi longtemps qu'on veut sur les ressources S3
+
+finaxys training GitHub
+checkout sur Windows
+
+Souvent le passage en production se fait en javascript ou typescript plutôt que python
+
+LANGCHAIN - faciliter le chainage de prompt. Dans le Framework, on a langchain, langsmith, langfuse
+
+dans le Framework LANGCHAIN, il y a la possibilité de lancer des jobs en mode offline, notament le soir, où il y a de la réduction de coût. 
+
+STREAM - batch - offline
+
+sérialisatoin et parellelisatoin des appels LLM. Gros avantage de LANGCHAIN
+il y a bcp d'intégrations avec la plupart des modèles LLM
+idem pour charger les documents de différents sources (bcp de sources dispo, ex notion, confluence)
+multiples backend dispo sur les retrievers
+
+PRINXIPAUX AVANTAGES
+ CHAIN OF THOUGHT REASONING (action, observatio, thought)
+MEMORY MANGEMENT of conversation (méthode pour faire un résumé - conversation summary memory) -(blackbox sur les infos qui ressortent contrairement à langsmith par exemple)
+CHAINS - enchainer les appels de LLM avec un I/O PARSER sur chaque élément de la chaine, possibilité de faire une architecture perso sur les chaînes. possibilité d'enchaîner des actions différentes avec des conditions
+Q & A - RAG
+Loaders de différentes sources + metadata - pour PDF
+
+Modèle multimodal tel que titan multimodal embeddings avec les images et le texte, pratique pour les documents qui ont des images et textes
+
+vector peut être fait à la volée et c'est même recommandée pour ne pas avoir tous les documents chargées 
+
+de nombreux text splitter différents (html, sentence, markdown, etc...)
+conversion du texte en markdown et utilisation du markdown caracter splitter par ex.
+/.
+attention certains modèles comme CLAUDE peuvent moins utiliser le contexte dans le RAG sans le savoir. ce qui n'est pas le cas de chatgpt
+eviter de surcharger le contexte d'un LLM
+
+RETRIEVAL sur le vector store en fonction des metadata (page par ex, image ou text), semantic similiarity , maximum marginal relevance (MMR)
+MMR - ne pas forcément pick la similarity sémantique max mais tient compte aussi d'autres éléments de diversités et qui s'adapte au besoin
+attention le LLM n'est pas le plus efficace pour les recherches donc ce ne sera pas toujours très pertinent
+
+COMPRESSION DES INFOS
+
+LCEL - LANG CHAIN EXPRESSION LANGUAGE permets la sérialisation et la parallelisation sur les appels LLM
+
+LANGSMITH est gratuit en développer perso
+
+TRACING des appels LLM - UTILISER LANGSMITH ! ou avec LANGFUSE en local
+
+3 stratégies pour simplifier le prompt:
+MAP REDUCE transformation sur chaque chunk comme un reduce python pour réduire le résultat final en résumé
+REFINE - appels en cascade sur chaque chunk avec ajout des informations au résymé à chaque appel pour compléter le résumé
+MAP RERANK - donner un rank sur chaque chunk et sélectionner les top 10 pertinents pour fournir un résumé
+
+variable agent_scratchpad variable qui va servir pour la conversatoin dans les arguments du type messagesplaceholder entre les agents
+
+avec le Framework REACT, les agents peuvent réaliser des actions entre eux
+
+mode agentic peut servir à contourner les problèmes de taille de contexte par ex. par contre l'inspection en cas de bug est compliqué
+il ne faut pas qu'il y ait de problème au milieu de la chaine sinon çà fera planter le tout
+
+mettre en place du caching sur les appels pour éviter de recalculer des appels identiques, notamment pour les tests unitaires pour éviter de surcharger le coût
+
+
+LLAMAINDEX
+les index sont stockés en local sur le pc
+il génère 2 index minimum (summaryindex et vectorstoreindex) par document. on peut générer dautres index, par exemple sentenceindex
+le llm ensuite ira cherche dans les index
+par ex. le summaryindex sera utilisé si on demande de faire un résumé.
+possibilité de faire du LANGCHAIN avec un agent de type LLAMAINDEX pour des fonctions avancées d'augmentation
+cahaque agent n'est pas obligé de fonctionner avec le même modèle, on peut spécifier en fonction de la tâche. Compromis coût/performance
+
+RAG TRIAD
+QUERY - CONTEXT - RESPONSE 
+CONTEXT RELEVANCE - GROUNDENES - ANSWER RELEVANCE
+
+SENTENCE WINDOW RETRIEVAL : utile lorsqu'on cherche des chunks, d'élargir la fenêtre autour du chunk sélectionné pour récupérer plus d'info lié au chunk retrieved
+AUTO MERGING RETRIVAL
+
+TRULENS - feedback function pour évaluer la qualité de la réponse, on choisit le modèle qu'on veut pour l'évaluatoin du RAG TRIAD
+attention dans le GitHub, il y a un bug sur le groundedness
+attention, il enregistre sa clé openai, utile en local pour faire des tests unitaires
+
+evaluer le modèle selon différentes méthodes de splitting et autres paramètres
+
+multiple queries for augmented retrieval est une bonne stratégie pour élargir le périmètre de proximité de retrait des embeddings 
+
+cacher un maximum un input-output déjà utilisé

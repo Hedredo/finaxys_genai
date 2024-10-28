@@ -1,0 +1,129 @@
+JOUR 1 - FORMATION GENAI
+
+Regarder la chaîne YouTube de Pierre BITTNER
+Gain de temps apporté par l'IA : principalement sur le temps gagné prompt + déploiement de l'assistant
+RLHF -> reinforcement Learning from human feedback
+cas d'usage des LLm : chatbot/assistant & self service de la data  & generation de contenu
+sécurité guardrails
+
+red flags : sujets non concrets , sans savoir si l'usage sera pertinent ou réalisable
+RGPD, hallucination
+
+ROI d'un LLM : meilleur compromis entre le temps gagné et le temps passé à verifier les résultats du modèle
+
+ajouter le feedback dans les assistants pour le monitoring de l'agent
+
+matérialiser les bonnes pratiques (le ton à utiliser auprès des clients, évolution et cycle de vie de la doc)
+
+prod : Guardrails (sécurité), hallucinations (tests, amélioration des paramètres probabilistes), coût du modèle à surveiller et maîtriser
+
+PRATIQUE - EVITER LE PROMPT INJECTION 
+le prompt utilisateur (USER sur open AI) ne doit jamais toucher le LLM. c'est le prompt system qui doit aller directement au LLM
+Attention ce type de mécanique n'est pas 100% sûr et peut être détournée
+1ERE TACTIQUE
+OPEN AI : triple quotes permettent de protéger de l'injection dans le prompt (prompt injection) et que le texte contenu dans le prompt ne modifie pas le prompt en lui même
+CLAUDE : c'est davantage le système de <tag> </tag> qui est utilisé pour le prompt
+
+2EME TACTIQUE
+demandez une sortie structurée en JSON ou HTML par exemple
+la sortie est faite sous format MD et il faut transformer l'output pour avoir une vrai sortie JSON
+
+3EME TACTIQUE
+demandez au modèle de vérifier si les conditions sont satisfaites
+par exemple s'il y a une séquence d'instruction dans le texte, le texte peut produire une lsite à puces sinon indique qu'il n'a pas trouvé d'instructions
+on peut s'inspirer des techniques de vérification d'erreur ou de conditions classiques et les appliquer dans le prompting
+
+4EME TACTIQUE 
+few shot prompting 
+lui donner des exemples pour qu'il génère un output dans la même forme que ce qu'on lui a indiqué
+pratiquement recommandé 
+
+MIXTURE OF EXPERTS - mécanisme dans un LLM où il y a différents experts 
+plus le prompt est gros, plus il va mettre du temps avant de traiter le premier token
+
+
+Utiliser le chain of thought reasoning pour améliorer les réponses du modèle : tester le modèle
+
+Développement itératif des prompts - mesurer les résultats et améliorer le prompt. S'inspirer de la fonction de perte avec une métrique à respecter
+(ici ce sera plutôt un template, longueur de la phrase, key terms, structure de la réponse, longueur max d'une phrase, difficulté de la phrase + textastic, cosine similarity avec la réponse attendue par exemple,
+ton utilisé : polarité du texte, les paragraphes, sortie attendue sous quel format)
+
+Entrainemet - finetuning - inférence sur le LLM
+
+Il faut être le plus spécifique possible sur ses instructions pour ne pas lui laisser de la nuance
+
+si par exemple on veut récuperer plusieurs informations sous forme de clé valeur pour ensuite les transformer en dataframe, on peut lui demander le format JSON en output (dans un defaultdict par exemple)
+pour cas il s'agit de l'extraction d'information à partir de verbatims. on peut faire cela avec des sentiments, des ids, des noms, etc.....
+on peut aussi faire un counter pour compter le nombre de thêmes dans une liste qu'on lui a proposé
+
+on peut lui préciser soit le ton, soit la forme de sortie (formel/informel)
+
+s'en servir comme un filtre (lui demander aussi d'enlever certaines infos, ou rendre le message politique correct), faire de l'anonymisation
+
+seul GPT prend le system prompt et peut avoir une structure très complexe avec plusieur assistant ou user message dans l'appel API. ce n'est pas le cas de mistral ou de claude
+
+dans le sdk openai, on peut donner un rôle pour le system avec un content, et rôle pour le user et un content différent
+
+chaque grand LLM a une API de modération
+
+pour protéger le modèle aux injections de prompt fallacieuse, on peut lui demander d'effacer systématiquement les triples quotes par exemple
+
+chatgpt a une très bonne compréhension des sens (ex.: identifie si le message a un caractère malveillant), toutes les instructions basées dessus sont efficaces
+
+le delimiter '####' prends qu'un seul token, donc c'est une bonne pratique chez openAI
+
+utilisation du CHAIN of thought reasonning 
+la bonne pratique est de faire du CHAINING PROMPT plutôt que d'avoir un prompt trop lourd. il faut détecter à quelle catégorie peut répondre l'input
+eviter des parties du prompt qui ne seraient pas utiles pour répondre à l'utilisateur. on extrait que les parties utiles pour les reinjecter dans le next prompt adapté
+un prompt trop lourd est mauvais pour le modèle , il vaut mieux l'éviter
+
+Limiter un CHAIN OF THOUGHT reasonning à 5 ou 6 étapes
+
+
+PARTIE EVALUATION DE l'OUTPUT RAG TRYAD (ou des étapes dans le CHAIN PROMPTING) - évaluer si l'output de LLM corresponds bien à la question initiale de l'utilisateur
+peut renvoyer un Y ou N
+mettre une condition si Y alors renvoyer la réponse à l'utilisateur
+
+éviter pour l'instant de demander une sortie native en JSON, il vaut mieux récupérer en string le json puis le convertir ou l e transformer en dico
+
+il faut réaliser les tests unitaires dès que possible sur les prompts pour pouvoir l'améliorer de manière itérative. on sert du LLM pour comparer la réponse aux test à des réponses 'idéales' qu'on a prédéfinies soi-même
+on peut lui fournir une échelle de notation pour l'évaluation de la réponse
+pour les tests, il est conseillé de fournir une doc ou un guide pour aider l'utilisateur à mettre en oeuvre le test
+
+on peut créer soi même 5 tests manuellement et on peut demander au LLM de s'inspirer pour générer toute une batterie d'exemple
+
+ANN - Approximate nearest neighbour
+puis HNSW qui va concatener plusieurs layers résultant de l'ANN
+
+hybrid search sur les bases de données vectorielles, both vector/dense search, à la fois sur du sparse et du dense et combine les résultats méthode with hybrid sur client client.query.get
+
+on 'est pas obligé de stocker tous les fichiers dans une base vectorielle, on peut en prendre une partie à la volée et les utiliser
+
+openai word embedding = ada
+
+12 factor app 12 principes pour guide
+claude word embedding = ??
+
+dans langfuse, on peut faire du prompt versionning et stocker en local. l'équipe GenAi s'en charge
+
+intégrer l'équipe GenAi
+
+Possibilité d'intégrer sa clé openAI dans son activate.ps1
+
+on peut générer les test avec github copilot. on peut lui demander de le faire sur une méthode de la classe. se servir de unitest et la fonction magicmock
+création d'une classe en pour tester le pizza assistant avec comme object un unitest.testcase
+utilisation possible de chat gpt 4o mini pour les évaluations
+
+UNITEST - librairie pour les tests unitaires
+
+FASTAPI - pour APIser le modèle
+
+SWAGGER open Ai
+
+VERCEL - gratuit que si tu fais que la lambda
+
+PERPLEXITY
+
+CHROMADB
+
+
